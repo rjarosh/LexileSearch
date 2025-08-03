@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Lexile Search</title>
+  <style>
+    body {
+      font-family: sans-serif;
+      margin: 20px;
+      text-align: center;
+    }
+    iframe {
+      width: 70%;
+      height: 90vh;
+      border: 1px solid #ccc;
+      display: inline-block;
+      margin-top: 20px;
+    }
+    input[type="text"] {
+      padding: 8px;
+      font-size: 16px;
+      width: 300px;
+    }
+    button {
+      padding: 8px 16px;
+      font-size: 16px;
+    }
+  </style>
+</head>
+<body>
+  <h1>Scan ISBN or Search by Title</h1>
+
+  <div>
+    <input type="text" id="search-input" placeholder="Search Book by Name" />
+    <button onclick="searchDifferentSite()">Search</button>
+  </div>
+
+  <iframe id="scanner-frame" src=""></iframe>
+
+  <script>
+    const iframe = document.getElementById("scanner-frame");
+let buffer = "";
+
+// Barcode scanner capture
+document.addEventListener("keydown", (e) => {
+  const tag = document.activeElement.tagName;
+  if (tag === "INPUT" || tag === "TEXTAREA") return;
+
+  if (e.key === "Enter") {
+    const id = buffer.trim();
+    buffer = "";
+    if (id) {
+      iframe.src = `https://hub.lexile.com/find-a-book/results/?term=${id}&sort_by%5Blabel%5D=Relevance&sort_by%5Bvalue%5D=-score`;
+      document.getElementById("search-input").value = "";  // Clear manual input box
+    }
+  } else {
+    buffer += e.key;
+  }
+});
+
+// Manual search Enter key listener
+document.getElementById("search-input").addEventListener("keypress", function(e) {
+  if (e.key === "Enter") {
+    e.preventDefault();
+    searchDifferentSite();
+  }
+});
+
+// Search button loads a different site in iframe
+function searchDifferentSite() {
+  const query = document.getElementById("search-input").value.trim();
+  if (!query) return;
+
+  const url =`https://hub.lexile.com/find-a-book/results?term=${encodeURIComponent(query)}&sort_by%5Blabel%5D=Relevance&sort_by%5Bvalue%5D=-score`
+  iframe.src = url;
+
+  document.getElementById("search-input").blur();
+
+}
+
+  </script>
+</body>
+</html>
